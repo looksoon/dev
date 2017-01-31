@@ -1,0 +1,137 @@
+{
+    "staticSeed":
+    {
+      "attrs":
+      {
+      },
+      "exp":
+      {
+        "crt": "seed(id);",
+        "rbd": "",
+        "rad": ""
+      }
+    },
+
+
+    "randomLifespan":
+      {
+        "attrs":
+        {
+        },
+        "exp":
+        {
+          "crt": "lifespanPP = rand(%.02f, %.02f) * %.02f;",
+          "rbd": "",
+          "rad": ""
+        }
+      },
+
+
+    "flowingOn":
+    {
+      "attrs":
+      {
+        "goalU": "doubleArray",
+        "goalV": "doubleArray",
+        "parentU": "doubleArray",
+        "parentV": "doubleArray",
+        "c_speedPP": "doubleArray"
+      },
+      "exp":
+      {
+        "crt": "goalU = parentU;\ngoalV = parentV;\nc_speedPP = rand(%.02f, %.02f) * %.02f;",
+        "rbd": "goal%s %s= c_speedPP;",
+        "rad": ""
+      }
+    },
+
+    "killedWhenAge":
+    {
+      "attrs":
+      {
+        "goalU": "doubleArray",
+        "goalV": "doubleArray"
+      },
+      "exp":
+      {
+        "crt": "",
+        "rbd": "if (goal%s %s= %.02f)\n    lifespanPP = 0;",
+        "rad": ""
+      }
+    },
+
+    "insRandomIndex":
+    {
+      "attrs":
+      {
+        "c_indexPP": "doubleArray"
+      },
+      "exp":
+      {
+        "crt": "c_indexPP = rand(%d);",
+        "rbd": "c_indexPP += 1;\nif (c_indexPP >= %d)\n    c_indexPP = 0;",
+        "rad": ""
+      }
+    },
+
+  "insRandomSpin":
+    {
+      "attrs":
+      {
+        "c_spinVelocityPP": "vectorArray",
+        "c_spinPP": "vectorArray"
+      },
+      "exp":
+      {
+        "crt": "float $rotTmp = rand(1);\nvector $rotAxis = <<1,0,0>>;\nif ($rotTmp >= 0.3 || $rotTmp < 0.6)\n    $rotAxis=<<0,1,0>>;\nelse if ($rotTmp >=0.6)\n    $rotAxis=<<0,0,1>>;\nc_spinVelocityPP = $rotAxis * (rand(-1,1)>0?-1:1) * rand(%.02f, %.02f) * %.02f;\nc_spinPP = sphrand(360);",
+        "rbd": "c_spinPP += c_spinVelocityPP;",
+        "rad": ""
+      }
+    },
+
+    "insAimDirection":
+    {
+      "attrs":
+      {
+        "c_spinSpeedPP": "doubleArray",
+        "c_aimAxisPP": "vectorArray",
+        "c_aimUpAxisPP": "vectorArray"
+      },
+      "exp":
+      {
+        "crt": "c_aimAxisPP = <<%d, %d, %d>>;\nc_spinSpeedPP = (rand(-1,1)>0?-1:1) * rand(%.2f, %.2f) * %.2f;\nc_aimUpAxisPP = <<%s, %s, %s>>;",
+        "rbd": "c_aimUpAxisPP = <<%s, %s, %s>>;",
+        "rad": ""
+      }
+    },
+
+    "insAimNormal":
+    {
+      "attrs":
+      {
+        "c_beforePosPP": "vectorArray",
+        "c_aimAxisPP": "vectorArray",
+        "c_aimUpAxisPP": "vectorArray"
+      },
+      "exp":
+      {
+        "crt": "c_axisPP = <<1,0,0>>;\nif (dot(<<0,0,1>>, goalWorldNormal0PP)>0)\n    c_upAxisPP = -goalWorldNormal0PP;\nelse\n    c_upAxisPP = goalWorldNormal0PP;",
+        "rbd": "c_beforePosPP = position;\nif (dot(<<0,0,1>>, goalWorldNormal0PP)>0)\n    c_upAxisPP = -goalWorldNormal0PP;\nelse\n    c_upAxisPP = goalWorldNormal0PP;",
+        "rad": "vector $lastPos = c_beforePosPP;\nvector $pos = position;\nvelocity = ($pos - $lastPos) * %d;"
+      }
+    },
+
+    "trail":
+    {
+      "attrs":
+      {
+        "c_beforePosPP": "vectorArray"
+      },
+      "exp":
+      {
+        "crt": "",
+        "rbd": "c_beforePosPP = position;",
+        "rad": "string $trail_pt = \"%s\";\nfloat $separ = %d;\nvector $lastPos = c_beforePosPP;\nvector $pos = position;\nvector $move = <<(($pos.x)-($lastPos.x)), (($pos.y)-($lastPos.y)), (($pos.z)-($lastPos.z))>>;\nint $num = ceil(mag($move)/(1/$separ));\nif ($num != 0)\n{\n    vector $step = $move/$num;\n    for($i=1; $i<=$num; $i++)\n    {\n        vector $newPos = $lastPos + $step*$i;\n        float $life = time - (1.0/%d/$num * ($num-$i));\n        emit -o $trail_pt -pos ($newPos.x) ($newPos.y) ($newPos.z) -at \"birthTime\" -fv $life;\n    }\n    \n}"
+      }
+    }
+}
